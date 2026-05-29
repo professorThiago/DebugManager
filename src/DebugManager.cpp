@@ -1,36 +1,38 @@
 /**
  * @file DebugManager.cpp
- * @brief Implementação do sistema de log em 6 níveis para ESP32.
+ * @brief Implementação do sistema de log em 6 níveis.
  *
  * @author  professorThiago (https://github.com/professorThiago)
- * @version 2.0.0
+ * @version 3.0.0
  * @license MIT
  */
 
 #include "DebugManager.h"
-#include "secrets.h"
 
-static int nivelDebugAtual = DEBUG_NIVEL_INICIAL;
+static int nivelDebugAtual = DEBUG_INFO;
 
 // =============================================================================
 // Inicialização
 // =============================================================================
 
-void configurarDebug()
+void configurarDebug(int nivelInicial, int pinoOverride)
 {
     Serial.begin(115200);
     delay(200);
 
-    pinMode(PINO_HABILITA_DEBUG_COMPLETO, INPUT_PULLUP);
-
-    if (digitalRead(PINO_HABILITA_DEBUG_COMPLETO) == LOW)
-        nivelDebugAtual = DEBUG_TUDO;
+    if (pinoOverride >= 0)
+    {
+        pinMode(pinoOverride, INPUT_PULLUP);
+        nivelDebugAtual = (digitalRead(pinoOverride) == LOW) ? DEBUG_TUDO : nivelInicial;
+    }
     else
-        nivelDebugAtual = DEBUG_NIVEL_INICIAL;
+    {
+        nivelDebugAtual = nivelInicial;
+    }
 
     Serial.print("\n\n\n");
     Serial.println("[INFO] ================================");
-    Serial.println("[INFO]  ESP32 — DebugManager v2.0.0");
+    Serial.println("[INFO]  ESP32 — DebugManager v3.0.0");
     Serial.print  ("[INFO]  Nivel ativo: ");
 
     switch (nivelDebugAtual)
@@ -55,36 +57,20 @@ void definirNivelDebug(int nivel) { nivelDebugAtual = nivel; }
 int  obterNivelDebugAtual()       { return nivelDebugAtual;  }
 
 // =============================================================================
-// Log com nova linha
+// Funções de log
 // =============================================================================
 
 void debugErro(const String& msg)
-{
-    if (nivelDebugAtual >= DEBUG_ERRO)
-    { Serial.print("[ERRO]    "); Serial.println(msg); }
-}
+    { if (nivelDebugAtual >= DEBUG_ERRO)    { Serial.print("[ERRO]    "); Serial.println(msg); } }
 
 void debugAviso(const String& msg)
-{
-    if (nivelDebugAtual >= DEBUG_AVISO)
-    { Serial.print("[AVISO]   "); Serial.println(msg); }
-}
+    { if (nivelDebugAtual >= DEBUG_AVISO)   { Serial.print("[AVISO]   "); Serial.println(msg); } }
 
 void debugInfo(const String& msg)
-{
-    if (nivelDebugAtual >= DEBUG_INFO)
-    { Serial.print("[INFO]    "); Serial.println(msg); }
-}
+    { if (nivelDebugAtual >= DEBUG_INFO)    { Serial.print("[INFO]    "); Serial.println(msg); } }
 
 void debugVerbose(const String& msg)
-{
-    if (nivelDebugAtual >= DEBUG_VERBOSE)
-    { Serial.print("[VERBOSE] "); Serial.println(msg); }
-}
+    { if (nivelDebugAtual >= DEBUG_VERBOSE) { Serial.print("[VERBOSE] "); Serial.println(msg); } }
 
 void debugTudo(const String& msg)
-{
-    if (nivelDebugAtual >= DEBUG_TUDO)
-    { Serial.print("[TUDO]    "); Serial.println(msg); }
-}
-
+    { if (nivelDebugAtual >= DEBUG_TUDO)    { Serial.print("[TUDO]    "); Serial.println(msg); } }

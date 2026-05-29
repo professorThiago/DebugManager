@@ -1,6 +1,6 @@
 {
   "name": "DebugManager",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Sistema de log em níveis (NENHUM / ERRO / TUDO) para ESP32. Independente de WiFi e MQTT — pode ser usado em qualquer projeto Arduino/ESP32.",
   "keywords": ["debug", "log", "serial", "esp32", "arduino"],
   "repository": {
