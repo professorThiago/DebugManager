@@ -88,21 +88,3 @@ void debugTudo(const String& msg)
     { Serial.print("[TUDO]    "); Serial.println(msg); }
 }
 
-// =============================================================================
-// Log sem nova linha
-// =============================================================================
-
-void debugErroSemLinha(const String& msg)
-    { if (nivelDebugAtual >= DEBUG_ERRO)    Serial.print(msg); }
-
-void debugAvisoSemLinha(const String& msg)
-    { if (nivelDebugAtual >= DEBUG_AVISO)   Serial.print(msg); }
-
-void debugInfoSemLinha(const String& msg)
-    { if (nivelDebugAtual >= DEBUG_INFO)    Serial.print(msg); }
-
-void debugVerboseSemLinha(const String& msg)
-    { if (nivelDebugAtual >= DEBUG_VERBOSE) Serial.print(msg); }
-
-void debugTudoSemLinha(const String& msg)
-    { if (nivelDebugAtual >= DEBUG_TUDO)    Serial.print(msg); }

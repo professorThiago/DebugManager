@@ -121,25 +121,6 @@ void debugVerbose(const String& msg);
 void debugTudo(const String& msg);
 
 // ---------------------------------------------------------------------------
-// API pública — log sem nova linha (para construção incremental de linha)
-// ---------------------------------------------------------------------------
-
-/** @brief `[ERRO]` sem nova linha. @param msg Texto a exibir. */
-void debugErroSemLinha(const String& msg);
-
-/** @brief `[AVISO]` sem nova linha. @param msg Texto a exibir. */
-void debugAvisoSemLinha(const String& msg);
-
-/** @brief `[INFO]` sem nova linha. @param msg Texto a exibir. */
-void debugInfoSemLinha(const String& msg);
-
-/** @brief `[VERBOSE]` sem nova linha. @param msg Texto a exibir. */
-void debugVerboseSemLinha(const String& msg);
-
-/** @brief `[TUDO]` sem nova linha. @param msg Texto a exibir. */
-void debugTudoSemLinha(const String& msg);
-
-// ---------------------------------------------------------------------------
 // API pública — controle de nível
 // ---------------------------------------------------------------------------
 

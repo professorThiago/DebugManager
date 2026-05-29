@@ -69,12 +69,6 @@ Inicializa `Serial` (115200 baud), lê o pino de override e imprime o nível ati
 | `debugVerbose(msg)` | `DEBUG_VERBOSE` (4) |
 | `debugTudo(msg)` | `DEBUG_TUDO` (5) |
 
-### Log sem nova linha
-
-Mesmas funções com sufixo `SemLinha`:  
-`debugErroSemLinha()`, `debugAvisoSemLinha()`, `debugInfoSemLinha()`,  
-`debugVerboseSemLinha()`, `debugTudoSemLinha()`
-
 ### Controle de nível
 
 ```cpp
