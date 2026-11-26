@@ -1,8 +1,19 @@
 {
   "name": "DebugManager",
-  "version": "3.0.0",
-  "description": "Sistema de log em níveis (NENHUM / ERRO / TUDO) para ESP32. Independente de WiFi e MQTT — pode ser usado em qualquer projeto Arduino/ESP32.",
-  "keywords": ["debug", "log", "serial", "esp32", "arduino"],
+  "version": "3.1.0",
+  "description": "Log em 6 niveis para Arduino/ESP32 com saidas extras (arquivo, MQTT, display), gravacao no LittleFS (ESP32), printf e API em portugues e ingles.",
+  "keywords": [
+    "debug",
+    "log",
+    "logging",
+    "serial",
+    "littlefs",
+    "esp32",
+    "arduino",
+    "english",
+    "portugues"
+  ],
+  "homepage": "https://professorthiago.github.io/DebugManager/",
   "repository": {
     "type": "git",
     "url": "https://github.com/professorThiago/DebugManager.git"
@@ -15,9 +26,17 @@
     }
   ],
   "license": "MIT",
-  "frameworks": ["arduino"],
+  "frameworks": [
+    "arduino"
+  ],
   "platforms": "*",
   "export": {
-    "include": ["src", "examples"]
+    "include": [
+      "src",
+      "examples",
+      "README.md",
+      "LICENSE",
+      "library.json"
+    ]
   }
 }
