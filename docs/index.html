@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DebugManager — Documentação / Documentation</title>
+<meta name="description" content="Log em 6 níveis para Arduino/ESP32 com saídas extras e gravação no LittleFS. 6-level logging for Arduino/ESP32 with extra outputs and LittleFS file logging.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e7c86'/%3E%3Cpath d='M8 11l5 5-5 5' stroke='%23fff' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M15 22h9' stroke='%23fff' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f7f8fa; --panel:#ffffff; --text:#1b2330; --soft:#5b6675; --line:#e3e7ed;
+  --accent:#0e7c86; --accent-soft:#e3f3f4; --warn:#b45309; --warn-soft:#fff4e0;
+  --danger:#b42318; --danger-soft:#fdecea; --ok:#15803d; --ok-soft:#e7f6ec;
+  --code-bg:#0f1720; --code-text:#e6edf3; --side:270px;
+  --mono:ui-monospace,SFMono-Regular,"JetBrains Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{ --bg:#0d1117; --panel:#131a23; --text:#e6edf3; --soft:#9aa6b4; --line:#253040;
+    --accent:#3cc6cf; --accent-soft:#0f2a2e; --warn:#f5b041; --warn-soft:#2b2210;
+    --danger:#ff7b72; --danger-soft:#2d1414; --ok:#56d364; --ok-soft:#10261a; --code-bg:#0a0f15; }
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:72px}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+html[data-lang="pt"] .en, html[data-lang="en"] .pt{display:none !important}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:20;height:58px;display:flex;align-items:center;gap:14px;padding:0 20px;
+  background:color-mix(in srgb,var(--panel) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--text);text-decoration:none}
+.brand svg{width:28px;height:28px}
+.brand small{font-weight:500;color:var(--soft)}
+.spacer{flex:1}
+.langs{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.langs button{border:0;background:none;color:var(--soft);padding:6px 12px;font:600 13px system-ui;cursor:pointer}
+.langs button.on{background:var(--accent);color:#fff}
+.gh{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);text-decoration:none;border:1px solid var(--line);padding:6px 10px;border-radius:8px}
+.menu{display:none;border:1px solid var(--line);background:none;color:var(--text);border-radius:8px;padding:6px 10px;cursor:pointer}
+
+/* layout */
+.wrap{display:grid;grid-template-columns:var(--side) minmax(0,1fr);max-width:1280px;margin:0 auto}
+nav.side{position:sticky;top:58px;height:calc(100vh - 58px);overflow:auto;padding:22px 14px 40px 20px;border-right:1px solid var(--line)}
+nav.side h4{margin:18px 0 6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+nav.side a{display:block;padding:4px 10px;border-radius:6px;color:var(--text);text-decoration:none;font-size:14.5px}
+nav.side a:hover{background:var(--accent-soft)}
+nav.side a.ativo{background:var(--accent-soft);color:var(--accent);font-weight:600}
+main{padding:28px 44px 80px;min-width:0}
+section{max-width:860px;margin:0 0 56px}
+h1{font-size:2.3rem;line-height:1.15;margin:.2em 0 .3em}
+h2{font-size:1.65rem;margin:0 0 .5em;padding-top:8px;border-top:1px solid var(--line)}
+section:first-of-type h2{border-top:0}
+h3{font-size:1.18rem;margin:1.6em 0 .4em}
+p,li{color:var(--text)}
+.lead{font-size:1.15rem;color:var(--soft);max-width:720px}
+code{font-family:var(--mono);font-size:.88em;background:var(--accent-soft);padding:.1em .35em;border-radius:4px}
+pre code{background:none;padding:0;font-size:13.5px}
+
+/* hero */
+.hero{padding:26px 0 10px}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 20px}
+.badge{font:600 12px var(--mono);padding:4px 9px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--soft)}
+.badge b{color:var(--accent)}
+.cta{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+.btn{display:inline-block;padding:10px 16px;border-radius:9px;font-weight:600;text-decoration:none;border:1px solid var(--accent)}
+.btn.p{background:var(--accent);color:#fff}
+.btn.s{color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:20px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h5{margin:0 0 4px;font-size:15px}
+.card p{margin:0;font-size:14px;color:var(--soft)}
+.card .ic{font-size:20px}
+
+/* code */
+.code{position:relative;margin:14px 0 18px;border-radius:10px;background:var(--code-bg);border:1px solid #1f2a36;overflow:hidden}
+.code .tag{position:absolute;left:12px;top:8px;font:600 11px var(--mono);color:#7d8b99;text-transform:uppercase}
+.code pre{margin:0;padding:32px 16px 16px;overflow:auto;color:var(--code-text)}
+.copy{position:absolute;right:8px;top:6px;border:1px solid #2c3a48;background:#16202b;color:#c9d4df;border-radius:6px;font:12px system-ui;padding:3px 9px;cursor:pointer}
+.copy:hover{background:#1f2c3a}
+.t-c{color:#7d8b99;font-style:italic} .t-s{color:#a5d6ff} .t-k{color:#ff7b72} .t-t{color:#ffa657}
+.t-n{color:#79c0ff} .t-p{color:#d2a8ff} .t-f{color:#d2a8ff} .t-a{color:#7ee787}
+
+/* tables */
+.tbl{overflow:auto;margin:12px 0 18px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--accent-soft);font-size:13px}
+tr:last-child td{border-bottom:0}
+td code{overflow-wrap:anywhere}
+
+/* callouts */
+.box{border-radius:10px;padding:12px 16px;margin:14px 0;border-left:4px solid}
+.box p{margin:.3em 0}
+.box.info{background:var(--accent-soft);border-color:var(--accent)}
+.box.warn{background:var(--warn-soft);border-color:var(--warn)}
+.box.danger{background:var(--danger-soft);border-color:var(--danger)}
+.box.ok{background:var(--ok-soft);border-color:var(--ok)}
+.box strong:first-child{display:block;margin-bottom:2px}
+
+/* diagrams */
+.diagram{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin:14px 0;overflow:auto}
+.diagram svg{display:block;max-width:100%;height:auto;margin:auto}
+.diagram text{font:13px system-ui;fill:var(--text)}
+.diagram .st{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.5}
+.diagram .ar{stroke:var(--soft);stroke-width:1.5;fill:none;marker-end:url(#seta)}
+.diagram .lb{font-size:11.5px;fill:var(--soft)}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps li{counter-increment:s;position:relative;padding:0 0 12px 42px}
+.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:28px;height:28px;border-radius:50%;
+  background:var(--accent);color:#fff;font:700 13px/28px system-ui;text-align:center}
+details{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0}
+details summary{cursor:pointer;font-weight:600}
+footer{border-top:1px solid var(--line);padding:24px 44px;color:var(--soft);font-size:14px}
+
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr}
+  nav.side{position:fixed;left:0;top:58px;width:290px;background:var(--panel);z-index:15;transform:translateX(-100%);transition:transform .2s;box-shadow:0 10px 30px #0003}
+  nav.side.aberto{transform:none}
+  .menu{display:block}
+  main{padding:20px 18px 60px}
+  .gh span{display:none}
+  .brand small{display:none}
+}
+@media (max-width:480px){
+  .gh{display:none}
+  .langs{flex-shrink:0}
+  h1{font-size:1.8rem}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <button class="menu" id="menu" aria-label="Menu">☰</button>
+  <a class="brand" href="#inicio">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#0e7c86"/><path d="M8 11l5 5-5 5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 22h9" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>
+    DebugManager <small>v3.1.0</small>
+  </a>
+  <div class="spacer"></div>
+  <div class="langs" role="group" aria-label="Idioma / Language">
+    <button data-set="pt">PT</button><button data-set="en">EN</button>
+  </div>
+  <a class="gh" href="https://github.com/professorThiago/DebugManager">
+    <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+    <span>GitHub</span>
+  </a>
+</header>
+
+<div class="wrap">
+<nav class="side" id="side">
+  <h4><span class="pt">Começando</span><span class="en">Getting started</span></h4>
+  <a href="#inicio"><span class="pt">Visão geral</span><span class="en">Overview</span></a>
+  <a href="#instalacao"><span class="pt">Instalação</span><span class="en">Installation</span></a>
+  <a href="#niveis"><span class="pt">Níveis</span><span class="en">Levels</span></a>
+  <a href="#uso"><span class="pt">Uso básico</span><span class="en">Basic usage</span></a>
+  <h4><span class="pt">Guias</span><span class="en">Guides</span></h4>
+  <a href="#saidas"><span class="pt">Saídas extras</span><span class="en">Extra outputs</span></a>
+  <a href="#littlefs"><span class="pt">Log no LittleFS</span><span class="en">Log to LittleFS</span></a>
+  <a href="#conectividade"><span class="pt">Com a ConectividadeESP32</span><span class="en">With ConectividadeESP32</span></a>
+  <h4><span class="pt">Referência</span><span class="en">Reference</span></h4>
+  <a href="#api"><span class="pt">API completa</span><span class="en">Full API</span></a>
+  <a href="#build"><span class="pt">Opções de compilação</span><span class="en">Build options</span></a>
+  <a href="#exemplos"><span class="pt">Exemplos</span><span class="en">Examples</span></a>
+  <a href="#versoes"><span class="pt">Histórico de versões</span><span class="en">Changelog</span></a>
+</nav>
+
+<main>
+
+<section id="inicio" class="hero">
+  <h1>DebugManager</h1>
+  <p class="lead pt">Log em <strong>6 níveis</strong> para Arduino e ESP32, com <strong>saídas extras</strong> (arquivo, MQTT, display...), <strong>gravação no LittleFS</strong> e API em <strong>português e inglês</strong>.</p>
+  <p class="lead en"><strong>6-level</strong> logging for Arduino and ESP32, with <strong>extra outputs</strong> (file, MQTT, display...), <strong>LittleFS file logging</strong> and a <strong>Portuguese and English</strong> API.</p>
+  <div class="badges">
+    <span class="badge">version <b>3.1.0</b></span>
+    <span class="badge">license <b>MIT</b></span>
+    <span class="badge">platforms <b>*</b></span>
+    <span class="badge">API <b>PT + EN</b></span>
+  </div>
+  <div class="cta">
+    <a class="btn p" href="#uso"><span class="pt">Começar agora</span><span class="en">Get started</span></a>
+    <a class="btn s" href="https://github.com/professorThiago/DebugManager">GitHub</a>
+  </div>
+<div class="pt">
+<div class="code"><span class="tag">cpp</span><button class="copy" type="button">Copiar</button><pre><code data-lang="cpp">#include &lt;DebugManager.h&gt;
+#include &lt;DebugLittleFS.h&gt;     // opcional (ESP32)
+
+void setup() {
+    configurarDebug(DEBUG_INFO, 4);       // Serial até INFO; GPIO 4 no GND → TUDO
+    debugLittleFS.iniciar(DEBUG_AVISO);   // avisos e erros também em arquivo
+    debugInfo("Sistema pronto");
+    debugInfof("Temperatura: %.1f C", 23.4);
+}
+
+void loop() {
+    debugLittleFS.atualizar();
+}</code></pre></div>
+</div>
+<div class="en">
+<div class="code"><span class="tag">cpp</span><button class="copy" type="button">Copiar</button><pre><code data-lang="cpp">#include &lt;DebugManager.h&gt;
+#include &lt;DebugLittleFS.h&gt;     // optional (ESP32)
+
+void setup() {
+    configureDebug(DEBUG_INFO, 4);        // Serial up to INFO; GPIO 4 to GND → TRACE
+    debugLittleFS.begin(DEBUG_WARNING);   // warnings and errors also go to a file
+    debugInfo("System ready");
+    debugInfof("Temperature: %.1f C", 23.4);
+}
+
+void loop() {
+    debugLittleFS.update();
+}</code></pre></div>
+</div>
+  <div class="grid">
+    <div class="card"><div class="ic">🎚️</div><h5><span class="pt">6 níveis</span><span class="en">6 levels</span></h5><p class="pt">De silencioso a payloads brutos. Muda em tempo de execução ou por um GPIO no boot.</p><p class="en">From silent to raw payloads. Change it at runtime or with a GPIO at boot.</p></div>
+    <div class="card"><div class="ic">🔀</div><h5><span class="pt">Saídas extras</span><span class="en">Extra outputs</span></h5><p class="pt">Mande as mensagens para arquivo, MQTT ou display, cada saída com seu nível.</p><p class="en">Send messages to a file, MQTT or a display, each output with its own level.</p></div>
+    <div class="card"><div class="ic">💾</div><h5><span class="pt">Log no LittleFS</span><span class="en">LittleFS log</span></h5><p class="pt">Arquivos com rotação, data/hora por NTP e motivo do reset (ESP32).</p><p class="en">Rotating files, NTP timestamps and reset reason (ESP32).</p></div>
+    <div class="card"><div class="ic">🧾</div><h5>printf</h5><p class="pt"><code>debugInfof("%d", x)</code> — sem montar String.</p><p class="en"><code>debugInfof("%d", x)</code> — no String building.</p></div>
+    <div class="card"><div class="ic">🔒</div><h5><span class="pt">Seguro com tarefas</span><span class="en">Task-safe</span></h5><p class="pt">No ESP32, um mutex impede que linhas de tarefas diferentes se misturem.</p><p class="en">On ESP32 a mutex keeps lines from different tasks from mixing.</p></div>
+    <div class="card"><div class="ic">🌎</div><h5><span class="pt">Português e inglês</span><span class="en">Portuguese &amp; English</span></h5><p class="pt"><code>debugErro</code> = <code>debugError</code>, <code>configurarDebug</code> = <code>configureDebug</code>...</p><p class="en"><code>debugError</code> = <code>debugErro</code>, <code>configureDebug</code> = <code>configurarDebug</code>...</p></div>
+  </div>
+</section>
+
+<section id="instalacao">
+  <h2><span class="pt">Instalação</span><span class="en">Installation</span></h2>
+<div class="code"><span class="tag">ini</span><button class="copy" type="button">Copiar</button><pre><code data-lang="ini">; platformio.ini
+lib_deps =
+    https://github.com/professorThiago/DebugManager.git
+
+; only for DebugLittleFS (ESP32):
+board_build.filesystem = littlefs</code></pre></div>
+  <p class="pt">Arduino IDE: baixe o ZIP (<em>Code → Download ZIP</em>) e use <em>Sketch → Incluir Biblioteca → Adicionar biblioteca .ZIP</em>. Quem usa a ConectividadeESP32 já recebe o DebugManager automaticamente.</p>
+  <p class="en">Arduino IDE: download the ZIP (<em>Code → Download ZIP</em>) and use <em>Sketch → Include Library → Add .ZIP Library</em>. ConectividadeESP32 users already get DebugManager automatically.</p>
+</section>
+
+<section id="niveis">
+  <h2><span class="pt">Níveis</span><span class="en">Levels</span></h2>
+  <p class="pt">Cada nível inclui todos os anteriores: com <code>DEBUG_INFO</code> aparecem erros, avisos e informações.</p>
+  <p class="en">Each level includes the previous ones: with <code>DEBUG_INFO</code> you get errors, warnings and info.</p>
+  <div class="tbl"><table>
+    <tr><th>#</th><th>PT</th><th>EN</th><th><span class="pt">Prefixo</span><span class="en">Prefix</span></th><th><span class="pt">Quando usar</span><span class="en">When to use</span></th></tr>
+    <tr><td>0</td><td><code>DEBUG_NENHUM</code></td><td><code>DEBUG_NONE</code></td><td>—</td><td><span class="pt">Produção silenciosa</span><span class="en">Silent production</span></td></tr>
+    <tr><td>1</td><td><code>DEBUG_ERRO</code></td><td><code>DEBUG_ERROR</code></td><td><code>[ERRO]</code></td><td><span class="pt">Falhas que afetam o funcionamento</span><span class="en">Failures that affect operation</span></td></tr>
+    <tr><td>2</td><td><code>DEBUG_AVISO</code></td><td><code>DEBUG_WARNING</code></td><td><code>[AVISO]</code></td><td><span class="pt">Reconexões, timeouts, fila cheia</span><span class="en">Reconnects, timeouts, full queue</span></td></tr>
+    <tr><td>3</td><td><code>DEBUG_INFO</code></td><td><code>DEBUG_INFO</code></td><td><code>[INFO]</code></td><td><span class="pt">Fluxo normal</span><span class="en">Normal flow</span></td></tr>
+    <tr><td>4</td><td><code>DEBUG_VERBOSE</code></td><td><code>DEBUG_VERBOSE</code></td><td><code>[VERBOSE]</code></td><td><span class="pt">Tentativas, transições de estado</span><span class="en">Attempts, state transitions</span></td></tr>
+    <tr><td>5</td><td><code>DEBUG_TUDO</code></td><td><code>DEBUG_TRACE</code></td><td><code>[TUDO]</code></td><td><span class="pt">Payloads brutos, códigos numéricos</span><span class="en">Raw payloads, numeric codes</span></td></tr>
+  </table></div>
+</section>
+
+<section id="uso">
+  <h2><span class="pt">Uso básico</span><span class="en">Basic usage</span></h2>
+<div class="pt">
+<div class="code"><span class="tag">cpp</span><button class="copy" type="button">Copiar</button><pre><code data-lang="cpp">configurarDebug(DEBUG_INFO);          // nível do Serial
+configurarDebug(DEBUG_INFO, 4);       // GPIO 4 no GND ao ligar força DEBUG_TUDO
+configurarDebug(DEBUG_INFO, -1, 0);   // 0 = não chama Serial.begin() (seu código já chamou)
+
+debugErro("Sensor nao respondeu");                  // texto fixo: não cria String
+debugAviso("Fila em " + String(fila) + "/30");      // String
+debugInfof("RSSI: %d dBm | heap: %u", rssi, heap);  // estilo printf
+
+definirNivelDebug(DEBUG_VERBOSE);     // muda em tempo de execução
+mostrarTempoDebug(true);              // [   12.345] [INFO]    ...
+definirPortaDebug(Serial1);           // outra porta serial
+
+// Só monta o texto caro se alguém for receber
+if (debugHabilitado(DEBUG_TUDO)) debugTudo("Payload: " + payloadGigante);</code></pre></div>
+</div>
+<div class="en">
+<div class="code"><span class="tag">cpp</span><button class="copy" type="button">Copiar</button><pre><code data-lang="cpp">configureDebug(DEBUG_INFO);           // Serial level
+configureDebug(DEBUG_INFO, 4);        // GPIO 4 tied to GND at boot forces DEBUG_TRACE
+configureDebug(DEBUG_INFO, -1, 0);    // 0 = do not call Serial.begin() (your code did)
+
+debugError("Sensor not responding");                // fixed text: no String created
+debugWarning("Queue at " + String(queue) + "/30");  // String
+debugInfof("RSSI: %d dBm | heap: %u", rssi, heap);  // printf style
+
+setDebugLevel(DEBUG_VERBOSE);         // change at runtime
+showDebugTime(true);                  // [   12.345] [INFO]    ...
+setDebugPort(Serial1);                // another serial port
+
+// Only build the expensive text if someone will receive it
+if (isDebugEnabled(DEBUG_TRACE)) debugTrace("Payload: " + hugePayload);</code></pre></div>
+</div>
+<div class="code"><span class="tag">text</span><button class="copy" type="button">Copiar</button><pre><code data-lang="text">[INFO]    ================================
+[INFO]     DebugManager v3.1.0
+[INFO]     Nivel ativo: 3 - INFO
+[INFO]    ================================
+[ERRO]    Sensor nao respondeu
+[AVISO]   Fila em 27/30
+[INFO]    RSSI: -61 dBm | heap: 182344</code></pre></div>
+</section>
+
+<section id="saidas">
+  <h2><span class="pt">Saídas extras</span><span class="en">Extra outputs</span></h2>
+  <p class="pt">Uma saída extra é uma função que recebe as mensagens para fazer o que você quiser: gravar em arquivo, publicar por MQTT, mostrar num display, acender um LED. <strong>Cada saída tem o seu nível</strong>, independente do Serial — dá para deixar o Serial silencioso e gravar avisos em arquivo, ou ver tudo no Serial e gravar só erros.</p>
+  <p class="en">An extra output is a function that receives messages to do whatever you want: write to a file, publish over MQTT, show on a display, light an LED. <strong>Each output has its own level</strong>, independent from Serial — keep Serial silent while saving warnings to a file, or see everything on Serial while saving only errors.</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 700 190" role="img" aria-label="Outputs">
+      <defs><marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#7d8b99"/></marker></defs>
+      <rect class="st" x="20" y="70" width="170" height="50" rx="10"/>
+      <text x="105" y="92" text-anchor="middle">debugAviso("...")</text>
+      <text x="105" y="110" text-anchor="middle" class="lb"><tspan class="pt">nível 2</tspan><tspan class="en">level 2</tspan></text>
+      <rect class="st" x="440" y="15" width="240" height="44" rx="10"/>
+      <text x="560" y="34" text-anchor="middle">Serial</text>
+      <text x="560" y="50" text-anchor="middle" class="lb"><tspan class="pt">nível INFO (3) → mostra</tspan><tspan class="en">level INFO (3) → shows</tspan></text>
+      <rect class="st" x="440" y="73" width="240" height="44" rx="10"/>
+      <text x="560" y="92" text-anchor="middle">DebugLittleFS</text>
+      <text x="560" y="108" text-anchor="middle" class="lb"><tspan class="pt">nível AVISO (2) → grava</tspan><tspan class="en">level WARNING (2) → writes</tspan></text>
+      <rect x="440" y="131" width="240" height="44" rx="10" fill="none" stroke="var(--line)" stroke-dasharray="5 4"/>
+      <text x="560" y="150" text-anchor="middle" style="fill:var(--soft)"><tspan class="pt">Saída MQTT</tspan><tspan class="en">MQTT output</tspan></text>
+      <text x="560" y="166" text-anchor="middle" class="lb"><tspan class="pt">nível ERRO (1) → ignora</tspan><tspan class="en">level ERROR (1) → skips</tspan></text>
+      <path class="ar" d="M190 90C300 90 330 37 438 37"/>
+      <path class="ar" d="M190 95H438"/>
+      <path d="M190 100C300 100 330 153 438 153" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="5 4" fill="none"/>
+    </svg>
+  </div>
+
+<div class="pt">
+<div class="code"><span class="tag">cpp</span><button class="copy" type="button">Copiar</button><pre><code data-lang="cpp">int id = adicionarSaidaDebug([](int nivel, const char* msg) {
+    display.println(msg);                 // recebe cada mensagem com nível &lt;= DEBUG_AVISO
+}, DEBUG_AVISO);
+
+definirNivelSaidaDebug(id, DEBUG_ERRO);   // muda o nível dessa saída
+removerSaidaDebug(id);                    // remove</code></pre></div>
+</div>
+<div class="en">
+<div class="code"><span class="tag">cpp</span><button class="copy" type="button">Copiar</button><pre><code data-lang="cpp">int id = addDebugOutput([](int level, const char* msg) {
+    display.println(msg);                 // receives every message with level &lt;= DEBUG_WARNING
+}, DEBUG_WARNING);
+
+setDebugOutputLevel(id, DEBUG_ERROR);     // change this output's level
+removeDebugOutput(id);                    // remove it</code></pre></div>
+</div>
+  <ul class="pt">
+    <li>Até 4 saídas ao mesmo tempo (<code>-DDEBUG_MANAGER_MAX_SAIDAS=8</code> para mais). <code>adicionarSaidaDebug</code> devolve <code>-1</code> se não houver espaço.</li>
+    <li>Uma mensagem gerada <strong>dentro</strong> de uma saída extra vai só para o Serial, para não entrar em loop.</li>
+    <li>ESP32, ESP8266 e RP2040 aceitam lambdas com captura; no AVR use funções comuns ou lambdas sem captura.</li>
+  </ul>
+  <ul class="en">
+    <li>Up to 4 outputs at once (<code>-DDEBUG_MANAGER_MAX_SAIDAS=8</code> for more). <code>addDebugOutput</code> returns <code>-1</code> when full.</li>
+    <li>A message produced <strong>inside</strong> an extra output only goes to Serial, to avoid infinite loops.</li>
+    <li>ESP32, ESP8266 and RP2040 accept capturing lambdas; on AVR use plain functions or non-capturing lambdas.</li>
+  </ul>
+</section>
+
+<section id="littlefs">
+  <h2><span class="pt">Log no LittleFS (ESP32)</span><span class="en">Log to LittleFS (ESP32)</span></h2>
+  <p class="pt"><code>DebugLittleFS</code> é uma saída extra pronta que grava em arquivo. Tudo o que passa pelo DebugManager vai para <code>/logs/atual.log</code>, com data e hora.</p>
+  <p class="en"><code>DebugLittleFS</code> is a ready-made extra output that writes to a file. Everything that goes through DebugManager ends up in <code>/logs/atual.log</code>, with date and time.</p>
+<div class="pt">
+<div class="code"><span class="tag">cpp</span><button class="copy" type="button">Copiar</button><pre><code data-lang="cpp">#include &lt;DebugManager.h&gt;
+#include &lt;DebugLittleFS.h&gt;
+
+void setup() {
+    configurarDebug(DEBUG_INFO);
+
+    DebugLittleFS::Config cfg;
+    cfg.nivel             = DEBUG_AVISO;   // o que vai para o arquivo
+    cfg.tamanhoMaxArquivo = 64 * 1024;     // gira a cada 64 KB
+    cfg.arquivosAntigos   = 2;             // atual.log + 1.log + 2.log
+    debugLittleFS.iniciar(cfg);
+}
+
+void loop() {
+    debugLittleFS.atualizar();             // grava o buffer e traz os erros do ESP-IDF
+}
+
+// Quando o WiFi conectar: data e hora reais (padrão: horário de Brasília)
+debugLittleFS.sincronizarHorario();</code></pre></div>
+</div>
+<div class="en">
+<div class="code"><span class="tag">cpp</span><button class="copy" type="button">Copiar</button><pre><code data-lang="cpp">#include &lt;DebugManager.h&gt;
+#include &lt;DebugLittleFS.h&gt;
+
+void setup() {
+    configureDebug(DEBUG_INFO);
+
+    DebugLittleFS::Config cfg;
+    cfg.nivel             = DEBUG_WARNING; // what goes to the file
+    cfg.tamanhoMaxArquivo = 64 * 1024;     // rotate every 64 KB
+    cfg.arquivosAntigos   = 2;             // atual.log + 1.log + 2.log
+    debugLittleFS.begin(cfg);
+}
+
+void loop() {
+    debugLittleFS.update();                // flushes the buffer and pulls ESP-IDF errors
+}
+
+// When WiFi connects: real date and time (default: Brasília time zone)
+debugLittleFS.syncTime();                  // or syncTime("UTC0") etc.</code></pre></div>
+</div>
+<div class="code"><span class="tag">text</span><button class="copy" type="button">Copiar</button><pre><code data-lang="text">boot+00:00:00.412   I ==== BOOT | reset: BROWNOUT (queda de tensao) | heap: 251320 ====
+boot+00:00:16.903   W WiFi: timeout (15s). Falha 1.
+2026-11-26 14:03:12 E MQTT: falha na conexao! Codigo: -2: CONNECT_FAILED
+2026-11-26 14:03:12 E IDF: (16210) esp-tls: ...</code></pre></div>
+  <p class="pt">Letras: <code>E</code> erro · <code>W</code> aviso · <code>I</code> info · <code>V</code> verbose · <code>T</code> tudo. Antes do NTP responder, a linha mostra o tempo desde o boot.</p>
+  <p class="en">Letters: <code>E</code> error · <code>W</code> warning · <code>I</code> info · <code>V</code> verbose · <code>T</code> trace. Until NTP answers, lines show the time since boot.</p>
+
+  <h3><span class="pt">Configuração</span><span class="en">Configuration</span></h3>
+  <div class="tbl"><table>
+    <tr><th><span class="pt">Campo</span><span class="en">Field</span></th><th><span class="pt">Padrão</span><span class="en">Default</span></th><th><span class="pt">Descrição</span><span class="en">Description</span></th></tr>
+    <tr><td><code>nivel</code></td><td><code>DEBUG_AVISO</code></td><td><span class="pt">Nível gravado no arquivo</span><span class="en">Level written to the file</span></td></tr>
+    <tr><td><code>pasta</code></td><td><code>"/logs"</code></td><td><span class="pt">Pasta dos arquivos</span><span class="en">Folder</span></td></tr>
+    <tr><td><code>tamanhoMaxArquivo</code></td><td>64 KB</td><td><span class="pt">Tamanho antes de girar</span><span class="en">Size before rotating</span></td></tr>
+    <tr><td><code>arquivosAntigos</code></td><td>2</td><td><span class="pt">Arquivos antigos guardados</span><span class="en">Old files kept</span></td></tr>
+    <tr><td><code>intervaloGravacaoMs</code></td><td>30000</td><td><span class="pt">Intervalo de gravação do buffer</span><span class="en">Buffer flush interval</span></td></tr>
+    <tr><td><code>tamanhoBuffer</code></td><td>2048</td><td><span class="pt">Grava antes se o buffer passar disso</span><span class="en">Flush earlier above this size</span></td></tr>
+    <tr><td><code>capturarLogsSistema</code></td><td><code>true</code></td><td><span class="pt">Grava erros/avisos do ESP-IDF (WiFi, TLS)</span><span class="en">Logs ESP-IDF errors/warnings (WiFi, TLS)</span></td></tr>
+    <tr><td><code>formatarSeFalhar</code></td><td><code>false</code></td><td><span class="pt">Formata o LittleFS se não montar (apaga tudo!)</span><span class="en">Formats LittleFS if mounting fails (erases everything!)</span></td></tr>
+  </table></div>
+
+  <h3><span class="pt">Lendo os logs</span><span class="en">Reading the logs</span></h3>
+  <div class="tbl"><table>
+    <tr><th>PT</th><th>EN</th><th><span class="pt">Descrição</span><span class="en">Description</span></th></tr>
+    <tr><td><code>ultimasLinhas(n)</code></td><td><code>lastLines(n)</code></td><td><span class="pt">Últimas N linhas como texto</span><span class="en">Last N lines as text</span></td></tr>
+    <tr><td><code>paraCadaLinha(n, cb)</code></td><td><code>forEachLine(n, cb)</code></td><td><span class="pt">Percorre as últimas N linhas (ex.: enviar por MQTT em partes)</span><span class="en">Iterates the last N lines (e.g. send over MQTT in chunks)</span></td></tr>
+    <tr><td><code>imprimirTudo(Serial)</code></td><td><code>printAll(Serial)</code></td><td><span class="pt">Todos os arquivos, do mais antigo ao atual</span><span class="en">All files, oldest first</span></td></tr>
+    <tr><td><code>limpar()</code></td><td><code>clear()</code></td><td><span class="pt">Apaga os logs</span><span class="en">Deletes the logs</span></td></tr>
+    <tr><td><code>tamanhoTotal()</code></td><td><code>totalSize()</code></td><td><span class="pt">Bytes ocupados</span><span class="en">Bytes used</span></td></tr>
+    <tr><td><code>DebugLittleFS::motivoReset()</code></td><td><code>DebugLittleFS::resetReason()</code></td><td><span class="pt">Motivo do último reset</span><span class="en">Reason of the last reset</span></td></tr>
+  </table></div>
+
+  <div class="box warn pt"><strong>Cuidados com a flash</strong>
+    <p>• Linhas comuns ficam num buffer em RAM e vão para a flash a cada 30 s. <strong>Erros e avisos são gravados na hora</strong> — se o ESP32 travar, eles já estão salvos.</p>
+    <p>• O LittleFS <strong>não é formatado</strong> automaticamente, porque pode guardar certificados e páginas.</p>
+    <p>• O <em>Upload Filesystem Image</em> substitui o LittleFS inteiro, <strong>inclusive a pasta /logs</strong>.</p>
+    <p>• Chame <code>gravarAgora()</code> antes de <code>ESP.restart()</code> ou deep sleep.</p></div>
+  <div class="box warn en"><strong>Flash wear</strong>
+    <p>• Regular lines stay in a RAM buffer and are flushed every 30 s. <strong>Errors and warnings are written immediately</strong> — if the ESP32 crashes, they are already saved.</p>
+    <p>• LittleFS is <strong>never formatted</strong> automatically, since it may hold certificates and pages.</p>
+    <p>• <em>Upload Filesystem Image</em> replaces the whole LittleFS, <strong>including /logs</strong>.</p>
+    <p>• Call <code>flush()</code> before <code>ESP.restart()</code> or deep sleep.</p></div>
+</section>
+
+<section id="conectividade">
+  <h2><span class="pt">Com a ConectividadeESP32</span><span class="en">With ConectividadeESP32</span></h2>
+  <p class="pt">A ConectividadeESP32 escreve suas mensagens pelo DebugManager. Ligando o <code>DebugLittleFS</code>, os códigos de erro do WiFi, do MQTT e da AWS vão direto para o arquivo — dá para investigar uma queda que aconteceu de madrugada.</p>
+  <p class="en">ConectividadeESP32 writes its messages through DebugManager. With <code>DebugLittleFS</code> enabled, WiFi, MQTT and AWS error codes go straight to the file — you can investigate a disconnection that happened overnight.</p>
+<div class="pt">
+<div class="code"><span class="tag">cpp</span><button class="copy" type="button">Copiar</button><pre><code data-lang="cpp">#include &lt;ConectividadeESP32.h&gt;
+#include &lt;DebugLittleFS.h&gt;
+
+void setup() {
+    configurarDebug(DEBUG_INFO);
+    debugLittleFS.iniciar(DEBUG_AVISO);
+
+    conectividade.registrarCallbackWiFiConectado([]() {
+        debugLittleFS.sincronizarHorario();       // log com data e hora
+    });
+    conectividade.beginAWS(WIFI_SALVO, aws, topicos);
+}
+
+void loop() {
+    conectividade.update();
+    debugLittleFS.atualizar();
+}</code></pre></div>
+</div>
+<div class="en">
+<div class="code"><span class="tag">cpp</span><button class="copy" type="button">Copiar</button><pre><code data-lang="cpp">#include &lt;ConectividadeESP32.h&gt;
+#include &lt;DebugLittleFS.h&gt;
+
+void setup() {
+    configureDebug(DEBUG_INFO);
+    debugLittleFS.begin(DEBUG_WARNING);
+
+    connectivity.onWiFiConnected([]() {
+        debugLittleFS.syncTime();                 // timestamps in the log
+    });
+    connectivity.beginAWS(SAVED_WIFI, aws, topics);
+}
+
+void loop() {
+    connectivity.update();
+    debugLittleFS.update();
+}</code></pre></div>
+</div>
+</section>
+
+<section id="api">
+  <h2><span class="pt">Referência completa da API</span><span class="en">Full API reference</span></h2>
+  <p class="pt">Os nomes das duas colunas chamam o mesmo código. <code>debugInfo</code> e <code>debugVerbose</code> são iguais nas duas línguas.</p>
+  <p class="en">Names in both columns call the same code. <code>debugInfo</code> and <code>debugVerbose</code> are the same in both languages.</p>
+  <div class="tbl"><table>
+    <tr><th>PT</th><th>EN</th><th><span class="pt">Descrição</span><span class="en">Description</span></th></tr>
+    <tr><td><code>configurarDebug(nivel, pino, baud)</code></td><td><code>configureDebug(level, pin, baud)</code></td><td><span class="pt">Inicializa (padrão: INFO, sem pino, 115200)</span><span class="en">Initializes (default: INFO, no pin, 115200)</span></td></tr>
+    <tr><td><code>definirNivelDebug(n)</code> / <code>obterNivelDebugAtual()</code></td><td><code>setDebugLevel(n)</code> / <code>getDebugLevel()</code></td><td><span class="pt">Nível do Serial</span><span class="en">Serial level</span></td></tr>
+    <tr><td><code>debugHabilitado(n)</code></td><td><code>isDebugEnabled(n)</code></td><td><span class="pt">Alguém recebe esse nível?</span><span class="en">Does anyone receive this level?</span></td></tr>
+    <tr><td><code>definirPortaDebug(porta)</code></td><td><code>setDebugPort(port)</code></td><td><span class="pt">Troca o Serial por outra porta</span><span class="en">Use another port instead of Serial</span></td></tr>
+    <tr><td><code>mostrarTempoDebug(bool)</code></td><td><code>showDebugTime(bool)</code></td><td><span class="pt">Tempo desde o boot em cada linha</span><span class="en">Time since boot on each line</span></td></tr>
+    <tr><td><code>adicionarSaidaDebug(cb, nivel)</code></td><td><code>addDebugOutput(cb, level)</code></td><td><span class="pt">Registra saída extra → id ou -1</span><span class="en">Registers an extra output → id or -1</span></td></tr>
+    <tr><td><code>definirNivelSaidaDebug(id, n)</code></td><td><code>setDebugOutputLevel(id, n)</code></td><td><span class="pt">Muda o nível da saída</span><span class="en">Changes the output's level</span></td></tr>
+    <tr><td><code>removerSaidaDebug(id)</code> / <code>removerSaidasDebug()</code></td><td><code>removeDebugOutput(id)</code> / <code>clearDebugOutputs()</code></td><td><span class="pt">Remove uma / todas</span><span class="en">Removes one / all</span></td></tr>
+    <tr><td><code>nomeNivelDebug(n)</code></td><td><code>debugLevelName(n)</code></td><td><code>"ERRO"</code>, <code>"AVISO"</code>...</td></tr>
+    <tr><td><code>debugErro</code> / <code>debugAviso</code> / <code>debugTudo</code></td><td><code>debugError</code> / <code>debugWarning</code> / <code>debugTrace</code></td><td><code>String</code> <span class="pt">ou</span><span class="en">or</span> <code>const char*</code></td></tr>
+    <tr><td><code>debugInfo</code> / <code>debugVerbose</code></td><td><code>debugInfo</code> / <code>debugVerbose</code></td><td><code>String</code> <span class="pt">ou</span><span class="en">or</span> <code>const char*</code></td></tr>
+    <tr><td><code>debugErrof</code> / <code>debugAvisof</code> / <code>debugTudof</code></td><td><code>debugErrorf</code> / <code>debugWarningf</code> / <code>debugTracef</code></td><td>printf</td></tr>
+    <tr><td><code>debugInfof</code> / <code>debugVerbosef</code></td><td><code>debugInfof</code> / <code>debugVerbosef</code></td><td>printf</td></tr>
+    <tr><td><code>debugLog(nivel, msg)</code></td><td><code>debugLog(level, msg)</code></td><td><span class="pt">Nível escolhido em tempo de execução</span><span class="en">Level chosen at runtime</span></td></tr>
+    <tr><td><code>SaidaDebug</code></td><td><code>DebugOutput</code></td><td><code>void(int nivel, const char* msg)</code></td></tr>
+    <tr><td><code>debugLittleFS.iniciar</code> / <code>atualizar</code> / <code>gravarAgora</code></td><td><code>begin</code> / <code>update</code> / <code>flush</code></td><td><span class="pt">Ciclo de vida do log em arquivo</span><span class="en">File log lifecycle</span></td></tr>
+    <tr><td><code>definirNivel</code> / <code>sincronizarHorario</code></td><td><code>setLevel</code> / <code>syncTime</code></td><td></td></tr>
+  </table></div>
+</section>
+
+<section id="build">
+  <h2><span class="pt">Opções de compilação</span><span class="en">Build options</span></h2>
+  <div class="tbl"><table>
+    <tr><th>Define</th><th><span class="pt">Padrão</span><span class="en">Default</span></th><th><span class="pt">Descrição</span><span class="en">Description</span></th></tr>
+    <tr><td><code>DEBUG_MANAGER_MAX_SAIDAS</code></td><td><code>4</code></td><td><span class="pt">Saídas extras simultâneas</span><span class="en">Simultaneous extra outputs</span></td></tr>
+    <tr><td><code>DEBUG_MANAGER_TAMANHO_PRINTF</code></td><td><code>256</code></td><td><span class="pt">Buffer das funções <code>...f()</code></span><span class="en">Buffer for <code>...f()</code> functions</span></td></tr>
+    <tr><td><code>DEBUG_MANAGER_USAR_STD_FUNCTION</code></td><td>—</td><td><span class="pt">Força <code>std::function</code> em outras plataformas</span><span class="en">Forces <code>std::function</code> on other platforms</span></td></tr>
+  </table></div>
+</section>
+
+<section id="exemplos">
+  <h2><span class="pt">Exemplos</span><span class="en">Examples</span></h2>
+  <div class="tbl"><table>
+    <tr><th><span class="pt">Pasta</span><span class="en">Folder</span></th><th><span class="pt">O que mostra</span><span class="en">What it shows</span></th></tr>
+    <tr><td><code>NiveisDeDebug</code></td><td><span class="pt">Os 6 níveis e a mudança em tempo de execução</span><span class="en">The 6 levels and runtime changes</span></td></tr>
+    <tr><td><code>02_SaidaExtra</code></td><td><span class="pt">Duas saídas extras com níveis diferentes + printf</span><span class="en">Two extra outputs with different levels + printf</span></td></tr>
+    <tr><td><code>03_LogLittleFS</code></td><td><span class="pt">Log em arquivo com comandos pelo Serial (ESP32)</span><span class="en">File log with Serial commands (ESP32)</span></td></tr>
+    <tr><td><code>04_EnglishAPI</code></td><td><span class="pt">Tudo com os nomes em inglês (ESP32)</span><span class="en">Everything with English names (ESP32)</span></td></tr>
+  </table></div>
+</section>
+
+<section id="versoes">
+  <h2><span class="pt">Histórico de versões</span><span class="en">Changelog</span></h2>
+  <h3>3.1.0</h3>
+  <ul class="pt">
+    <li><strong>Saídas extras</strong> com nível próprio.</li>
+    <li><strong>DebugLittleFS</strong> (ESP32): log em arquivo com rotação, buffer em RAM, NTP, motivo do reset e captura dos erros do ESP-IDF.</li>
+    <li>Funções estilo <strong>printf</strong> e versões <code>const char*</code> que não criam String.</li>
+    <li><code>debugHabilitado()</code>, <code>definirPortaDebug()</code>, <code>mostrarTempoDebug()</code>, <code>nomeNivelDebug()</code>, <code>debugLog()</code>.</li>
+    <li><code>configurarDebug()</code> aceita a velocidade do Serial e espera o USB nativo (ESP32-S3) por até 1,5 s.</li>
+    <li><code>DEBUG_NENHUM</code> não imprime mais o cabeçalho. Mutex no ESP32.</li>
+    <li><strong>API em inglês</strong>. Totalmente compatível com a 3.0.0.</li>
+  </ul>
+  <ul class="en">
+    <li><strong>Extra outputs</strong> with their own level.</li>
+    <li><strong>DebugLittleFS</strong> (ESP32): rotating file log, RAM buffer, NTP, reset reason and ESP-IDF error capture.</li>
+    <li><strong>printf</strong>-style functions and <code>const char*</code> overloads that create no String.</li>
+    <li><code>isDebugEnabled()</code>, <code>setDebugPort()</code>, <code>showDebugTime()</code>, <code>debugLevelName()</code>, <code>debugLog()</code>.</li>
+    <li><code>configureDebug()</code> takes the Serial baud rate and waits up to 1.5 s for native USB (ESP32-S3).</li>
+    <li><code>DEBUG_NONE</code> no longer prints the banner. Mutex on ESP32.</li>
+    <li><strong>English API</strong>. Fully compatible with 3.0.0.</li>
+  </ul>
+  <h3>3.0.0</h3>
+  <p class="pt">Biblioteca independente; nível e pino passados em <code>configurarDebug()</code>.</p>
+  <p class="en">Standalone library; level and pin passed to <code>configurarDebug()</code>.</p>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <span class="pt">DebugManager — MIT © 2026 <a href="https://github.com/professorThiago">professorThiago</a>.</span>
+  <span class="en">DebugManager — MIT © 2026 <a href="https://github.com/professorThiago">professorThiago</a>.</span>
+</footer>
+
+<script>
+// ---------- idioma / language ----------
+(function () {
+  const raiz = document.documentElement;
+  function definir(l) {
+    raiz.dataset.lang = l;
+    raiz.lang = l === 'pt' ? 'pt-BR' : 'en';
+    document.querySelectorAll('.langs button').forEach(b => b.classList.toggle('on', b.dataset.set === l));
+    try { localStorage.setItem('debugmanager-lang', l); } catch (e) {}
+    const u = new URL(location.href); u.searchParams.set('lang', l); history.replaceState(null, '', u);
+  }
+  let inicial = new URLSearchParams(location.search).get('lang');
+  if (!inicial) { try { inicial = localStorage.getItem('debugmanager-lang'); } catch (e) {} }
+  if (!inicial) inicial = (navigator.language || 'pt').toLowerCase().startsWith('pt') ? 'pt' : 'en';
+  definir(inicial === 'en' ? 'en' : 'pt');
+  document.querySelectorAll('.langs button').forEach(b => b.onclick = () => definir(b.dataset.set));
+})();
+
+// ---------- menu mobile ----------
+const side = document.getElementById('side');
+document.getElementById('menu').onclick = () => side.classList.toggle('aberto');
+side.querySelectorAll('a').forEach(a => a.addEventListener('click', () => side.classList.remove('aberto')));
+
+// ---------- seção ativa no menu ----------
+const links = [...side.querySelectorAll('a')];
+const obs = new IntersectionObserver(ents => {
+  ents.forEach(e => {
+    if (e.isIntersecting) links.forEach(a => a.classList.toggle('ativo', a.getAttribute('href') === '#' + e.target.id));
+  });
+}, { rootMargin: '-40% 0px -55% 0px' });
+document.querySelectorAll('main section[id]').forEach(s => obs.observe(s));
+
+// ---------- destaque de sintaxe / syntax highlight ----------
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const REGRAS = {
+  cpp: [
+    ['c', /\/\/[^\n]*|\/\*[\s\S]*?\*\//y],
+    ['p', /#[a-z]+[^\n]*/y],
+    ['s', /"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])'/y],
+    ['n', /\b\d+(?:\.\d+)?(?:UL|U|L)?\b/y],
+    ['k', /\b(?:if|else|for|while|return|const|static|void|true|false|nullptr|auto|struct|class|using|define|include)\b/y],
+    ['t', /\b(?:int|long|float|double|bool|char|uint8_t|uint16_t|uint32_t|int32_t|size_t|String|Preferences|ConfigWiFi|ConfigMQTT|ConfigTLS|ConfigAWS|ConfigTopicos|WiFiConfig|MQTTConfig|TLSConfig|AWSConfig|TopicsConfig|PoliticaFila|QueuePolicy)\b/y],
+    ['f', /\b[A-Za-z_]\w*(?=\s*\()/y],
+  ],
+  ini: [['c', /;[^\n]*/y], ['p', /\[[^\]\n]+\]/y], ['a', /^[\w.]+(?=\s*=)/my], ['s', /\\?"[^"\n]*\\?"/y]],
+  bash: [['c', /#[^\n]*/y], ['f', /\b(?:pio|run)\b/y], ['a', /-\w+/y]],
+  json: [['a', /"(?:\\.|[^"\\])*"(?=\s*:)/y], ['s', /"(?:\\.|[^"\\])*"/y], ['n', /\b\d+\b/y], ['k', /\b(?:true|false|null)\b/y]],
+  html: [['c', /<!--[\s\S]*?-->/y], ['k', /<\/?[a-zA-Z][\w-]*/y], ['a', /\s[\w-]+(?==)/y], ['s', /"[^"]*"/y], ['k', /\/?>/y]],
+  text: [],
+};
+REGRAS.html.push(...REGRAS.cpp.filter(r => r[0] === 'c' || r[0] === 's'));
+function realcar(txt, lang) {
+  const regras = REGRAS[lang] || [];
+  let out = '', i = 0, plano = '';
+  while (i < txt.length) {
+    let achou = false;
+    for (const [cls, re] of regras) {
+      re.lastIndex = i;
+      const m = re.exec(txt);
+      if (m && m.index === i && m[0].length) {
+        out += esc(plano); plano = '';
+        out += `<span class="t-${cls}">${esc(m[0])}</span>`;
+        i += m[0].length; achou = true; break;
+      }
+    }
+    if (!achou) { plano += txt[i]; i++; }
+  }
+  return out + esc(plano);
+}
+document.querySelectorAll('.code').forEach(bloco => {
+  const code = bloco.querySelector('code');
+  const lang = code.dataset.lang;
+  const texto = code.textContent;
+  code.innerHTML = realcar(texto, lang);
+  const b = bloco.querySelector('.copy');
+  b.onclick = async () => {
+    try { await navigator.clipboard.writeText(texto); } catch (e) {
+      const ta = document.createElement('textarea'); ta.value = texto; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch (e2) {} ta.remove();
+    }
+    const pt = document.documentElement.dataset.lang === 'pt';
+    b.textContent = pt ? 'Copiado!' : 'Copied!';
+    setTimeout(() => b.textContent = pt ? 'Copiar' : 'Copy', 1400);
+  };
+});
+document.querySelectorAll('.langs button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.copy').forEach(c => c.textContent = b.dataset.set === 'pt' ? 'Copiar' : 'Copy');
+}));
+document.querySelectorAll('.copy').forEach(c => c.textContent = document.documentElement.dataset.lang === 'pt' ? 'Copiar' : 'Copy');
+</script>
+</body>
+</html>

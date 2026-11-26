@@ -17,7 +17,7 @@
  */
 
 #include <Arduino.h>
-#include "DebugManager.h"
+#include <DebugManager.h>
 
 void enviarTodasMensagens() {
     debugErro  ("mensagem de ERRO   — algo critico aconteceu");
